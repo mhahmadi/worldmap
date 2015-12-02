@@ -1,0 +1,21 @@
+{
+  "name": "datamaps",
+  "description": "a simple world map polymer element with selectable geos",
+  "version": "0.0.1",
+  "main": "worldmap.html",
+  "moduleType": [],
+  "license": "MIT",
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.2.0",
+    "datamaps": "~0.4.0"
+  }
+}

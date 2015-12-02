@@ -1,0 +1,108 @@
+<script src="../d3/d3.min.js"></script>
+<script src="../topojson/topojson.js"></script>
+<script src="../datamaps/dist/datamaps.world.min.js"></script>
+<link rel="import" href="../polymer/polymer.html">
+
+<dom-module id="world-map">
+	<style>
+		:host {
+			display: block;
+		};
+	</style>
+	<template>
+		<div id="container" style="position: relative; height: 100%;"></div>
+	</template>
+	<script>
+		Polymer({
+			is: 'world-map',
+			properties: {
+				selected: {
+					type: Array,
+					value: [],
+					notify: true,
+					observer: 'selectedChanged'
+				},
+				defaultFill: {
+					type: String,
+					value: "#bbdefb"
+				},
+				highlightFill: {
+					type: String,
+					value: "#1565c0"
+				},
+				width: {
+					type: Number,
+					value: 0
+				},
+				height: {
+					type: Number,
+					value: 0
+				}
+			},
+			attached: function() {
+				var self = this;
+
+				var mapOptions = {
+						element: this.$.container,
+						responsive: false,
+						geographyConfig: {
+							highlightOnHover: false
+						},
+						fills: {
+							defaultFill: this.defaultFill
+						},
+						done: function(datamap) {
+							self.selectedChanged(self.selected, undefined, datamap);
+							window.addEventListener('resize', function() {
+								self.map.resize();
+							});
+							datamap.svg.selectAll('.datamaps-subunit').on('click', function(geography) {
+								self.geographyClicked(geography);
+							});
+						}
+				}
+				if(this.width) {
+					mapOptions.width = this.width;
+				}
+				if(this.height) {
+					mapOptions.height = this.height;
+				}
+
+				setTimeout(function() {
+					self.map = new Datamap(mapOptions);
+				}, 100);
+			},
+			geographyClicked: function(geography) {
+				var newSelected = [];
+				var hasClickedGeo = false;
+				this.selected.forEach(function(element, index) {
+					if(element !== geography.id) {
+						newSelected.push(element);
+					} else {
+						hasClickedGeo = true;
+					}
+				});
+				if(!hasClickedGeo) {
+					newSelected.push(geography.id);
+				}
+				this.selected = newSelected;
+			},
+			selectedChanged: function(newVal, oldVal, map) {
+				var self = this;
+				newVal = newVal || [];
+				oldVal = oldVal || [];
+				map = map || this.map;
+				choropleth = {};
+				oldVal.forEach(function(element, index) {
+					choropleth[element] = self.defaultFill;
+				});
+				newVal.forEach(function(element, index) {
+					choropleth[element] = self.highlightFill;
+				});
+				if(map) {
+					map.updateChoropleth(choropleth);
+				}
+			}
+		})
+	</script>
+</dom-module>
